@@ -56,7 +56,10 @@
 
         private static Menu Menu;
 
-        private static int QStack = 1;
+        private static float LastQ;
+
+
+        private static int QStack = 0;
 
         public static bool forceQ2 = false;
 
@@ -79,6 +82,30 @@
         public static int ComboBox(Menu m, string s)
         {
             return m[s].Cast<ComboBox>().SelectedIndex;
+        }
+
+        private static AIHeroClient riventarget()
+        {
+            var cursortarg = EntityManager.Heroes.Enemies
+                .Where(x => x.Distance(Game.CursorPos) <= 1400 && x.Distance(myHero.ServerPosition) <= 1400)
+                .OrderBy(x => x.Distance(Game.CursorPos)).FirstOrDefault(x => x.IsValidTarget());
+
+            var closetarg = EntityManager.Heroes.Enemies
+                .Where(x => x.Distance(myHero.ServerPosition) <= E.Range + 100)
+                .OrderBy(x => x.Distance(myHero.ServerPosition)).FirstOrDefault(x => x.IsValidTarget());
+
+            return _sh ?? cursortarg ?? closetarg;
+        }
+
+        private static AIHeroClient _sh;
+        static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (args.Msg == (ulong)WindowMessages.LeftButtonDown)
+            {
+                _sh = EntityManager.Heroes.Enemies
+                     .FindAll(hero => hero.IsValidTarget() && hero.Distance(Game.CursorPos, true) < 40000) // 200 * 200
+                     .OrderBy(h => h.Distance(Game.CursorPos, true)).FirstOrDefault();
+            }
         }
 
         private static void Main(string[] args)
@@ -156,7 +183,9 @@
             MiscMenu.Add("AutoW", new Slider("Auto W When X Enemy", 5, 0, 5));
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
             MiscMenu.Add("Winterrupt", new CheckBox("W interrupt"));
-            MiscMenu.Add("KeepQ", new CheckBox("Keep Q Alive"));
+            MiscMenu.Add("gapcloser", new CheckBox("Stun on enemy gapcloser"));
+       
+
             MiscMenu.AddSeparator();
 
 
@@ -207,6 +236,8 @@
             Orbwalker.OnPostAttack += JungleClearELogic;
             Drawing.OnDraw += Drawing_OnDraw;
             Drawing.OnEndScene += Drawing_OnEndScene;
+            Gapcloser.OnGapcloser += Gapcloser_OnGapcloser;
+
 
         }
 
@@ -467,6 +498,13 @@
             }
         }
 
+        private static void Gapcloser_OnGapcloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs e)
+        {
+            if (myHero.IsDead || !sender.IsEnemy || !sender.IsValidTarget(W.Range) || !W.IsReady() || !MiscMenu["gapcloser"].Cast<CheckBox>().CurrentValue) return;
+
+            W.Cast();
+        }
+
 
         private static int lastAA;
         private static AIHeroClient ComboTarget;
@@ -607,8 +645,8 @@
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
-            if (Environment.TickCount - lastQ >= 3650 && QStack != 1 && !myHero.IsRecalling() && MiscMenu["KeepQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
-                Player.CastSpell(SpellSlot.Q, Game.CursorPos); //Game.CursorPosition
+           
+        
         }
 
         private static void Combo()
