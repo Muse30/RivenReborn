@@ -29,7 +29,10 @@
 
         public static Spell.Active R1 { get; set; }
 
-        public static AIHeroClient myHero { get; set; }
+        public static AIHeroClient myHero
+        {
+            get { return Player.Instance; }
+        }
 
         public static Menu ComboMenu { get; private set; }
 
@@ -80,10 +83,10 @@
 
         private static void Main(string[] args)
         {
-            Loading.OnLoadingComplete += Game_OnGameLoad;
+            Loading.OnLoadingComplete += OnLoad;
         }
 
-        private static void Game_OnGameLoad(EventArgs args)
+        private static void OnLoad(EventArgs args)
         {
             if (ObjectManager.Player.BaseSkinName != "Riven")
             {
@@ -98,9 +101,8 @@
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.AddLabel("Super Fast Q+AA combo");
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
-            ComboMenu.Add("ForceR", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
-            ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
-     
+            ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
+            ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable")); 
             ComboMenu.AddSeparator();
             ComboMenu.Add("ComboE", new CheckBox("use E in Combo"));
             ComboMenu.AddLabel("Q Delays : ");
@@ -154,7 +156,7 @@
             MiscMenu.Add("AutoW", new Slider("Auto W When X Enemy", 5, 0, 5));
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
             MiscMenu.Add("Winterrupt", new CheckBox("W interrupt"));
-            Menu.AddSeparator();
+            MiscMenu.AddSeparator();
 
 
             FleeMenu = Menu.AddSubMenu("Flee");
@@ -581,13 +583,13 @@
         private static void OnTick(EventArgs args)
         {
 
-            if (lastQ + 3650 < Core.GameTickCount)
+           if (lastQ + 3650 < Core.GameTickCount)
 
 
             Killsteal();
             AutoUseW();
             ;
-            if (ComboMenu["burstcombo"].Cast<KeyBind>().CurrentValue) Burst();
+            if (BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue) Burst();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Harass();
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee))
@@ -665,11 +667,11 @@
 
           
 
-            if (ComboMenu["manualcancel"].Cast<CheckBox>().CurrentValue)
+            if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue)
             {
                 if (R1.IsReady())
                 {
-                    if (ComboMenu["manualcancel"].Cast<CheckBox>().CurrentValue && !myHero.HasBuff("RivenFengShuiEngine"))
+                    if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue && !myHero.HasBuff("RivenFengShuiEngine"))
                     {
                         var t = TargetSelector.GetTarget(700, DamageType.Physical);
                         if (t == null)
@@ -1044,8 +1046,8 @@
             {
                 Drawing.DrawText(heropos.X - 40, heropos.Y + 20, System.Drawing.Color.FloralWhite, "ForceR");
                 Drawing.DrawText(heropos.X + 10, heropos.Y + 20,
-                    BurstMenu["burstcombo"].Cast<CheckBox>().CurrentValue ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Red,
-                    BurstMenu["burstcombo"].Cast<CheckBox>().CurrentValue ? "On" : "Off");
+                    ComboMenu["RForce"].Cast<KeyBind>().CurrentValue ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Red,
+                    ComboMenu["RForce"].Cast<KeyBind>().CurrentValue ? "On" : "Off");
             }
 
             //Drawing.DrawText(heropos.X - 40, heropos.Y + 43, System.Drawing.Color.DodgerBlue, "Can AA:");
