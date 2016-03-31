@@ -156,6 +156,7 @@
             MiscMenu.Add("AutoW", new Slider("Auto W When X Enemy", 5, 0, 5));
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
             MiscMenu.Add("Winterrupt", new CheckBox("W interrupt"));
+            MiscMenu.Add("KeepQ", new CheckBox("Keep Q Alive"));
             MiscMenu.AddSeparator();
 
 
@@ -606,7 +607,8 @@
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
-
+            if (Environment.TickCount - lastQ >= 3650 && QStack != 1 && !myHero.IsRecalling() && MiscMenu["KeepQ"].Cast<CheckBox>().CurrentValue && Q.IsReady())
+                Player.CastSpell(SpellSlot.Q, Game.CursorPos); //Game.CursorPosition
         }
 
         private static void Combo()
@@ -792,6 +794,7 @@
                 }
             }
         }
+
 
         private static void Burst()
         {

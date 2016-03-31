@@ -133,7 +133,7 @@ namespace RivenReborn
             return 0;
         } 
 
-     private static double totaldame(Obj_AI_Base target)
+     public static double totaldame(Obj_AI_Base target)
      {
     if (target != null)
     {
