@@ -84,29 +84,8 @@
             return m[s].Cast<ComboBox>().SelectedIndex;
         }
 
-        private static AIHeroClient riventarget()
-        {
-            var cursortarg = EntityManager.Heroes.Enemies
-                .Where(x => x.Distance(Game.CursorPos) <= 1400 && x.Distance(myHero.ServerPosition) <= 1400)
-                .OrderBy(x => x.Distance(Game.CursorPos)).FirstOrDefault(x => x.IsValidTarget());
 
-            var closetarg = EntityManager.Heroes.Enemies
-                .Where(x => x.Distance(myHero.ServerPosition) <= E.Range + 100)
-                .OrderBy(x => x.Distance(myHero.ServerPosition)).FirstOrDefault(x => x.IsValidTarget());
-
-            return _sh ?? cursortarg ?? closetarg;
-        }
-
-        private static AIHeroClient _sh;
-        static void Game_OnWndProc(WndEventArgs args)
-        {
-            if (args.Msg == (ulong)WindowMessages.LeftButtonDown)
-            {
-                _sh = EntityManager.Heroes.Enemies
-                     .FindAll(hero => hero.IsValidTarget() && hero.Distance(Game.CursorPos, true) < 40000) // 200 * 200
-                     .OrderBy(h => h.Distance(Game.CursorPos, true)).FirstOrDefault();
-            }
-        }
+        private static AIHeroClient R2Target;
 
         private static void Main(string[] args)
         {
@@ -146,6 +125,7 @@
             BurstMenu.AddGroupLabel("Burst Settings");
             BurstMenu.Add("burstcombo", new KeyBind("Activate Burst", false, KeyBind.BindTypes.HoldActive, 'T'));
             BurstMenu.AddSeparator();
+            BurstMenu.AddLabel("Please Make sure you have Force R enable or it will not use R in burst (will fix)");
 
             HarassMenu = Menu.AddSubMenu("Harass");
             HarassMenu.AddGroupLabel("Harass Settings");
@@ -775,7 +755,7 @@
 
                         if (CastR2)
                         {
-                            R2.Cast(t);
+                            R2.Cast();
                         }
                     }
                 }
@@ -875,8 +855,13 @@
                     {
                         if (R2.IsReady() && forceR2)
                         {
-                            var prediction = R2.GetPrediction(target);
-                            R2.Cast(target);
+                            var enemy = EntityManager.Heroes.Enemies.FirstOrDefault(h => (h.Distance(Player.Instance) < R2.Range - 50) && RDamage(h) > h.Health && h.IsValidTarget());
+                            if (enemy != null)
+                            {
+                                forceR2 = true;
+                                R2Target = enemy;
+                                Core.DelayAction(() => forceR2 = false, 750);
+                            }
                         }
                         if (Q.IsReady())
                         {
@@ -1096,6 +1081,22 @@
             {
                 forceQ2 = true;
             }
+        }
+
+
+        private static double RDamage(Obj_AI_Base target)
+        {
+
+            if (target != null && R2.IsReady())
+            {
+                float missinghealth = (target.MaxHealth - target.Health) / target.MaxHealth > 0.75f
+                    ? 0.75f
+                    : (target.MaxHealth - target.Health) / target.MaxHealth;
+                float pluspercent = missinghealth * (2.666667F); // 8/3
+                float rawdmg = new float[] { 80, 120, 160 }[R2.Level - 1] + 0.6f * myHero.FlatPhysicalDamageMod;
+                return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical, rawdmg * (1 + pluspercent));
+            }
+            return 0;
         }
 
         private static void Drawing_OnDraw(EventArgs args)
