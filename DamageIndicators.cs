@@ -15,7 +15,7 @@ using RivenReborn;
 
 namespace RivenReborn
 {
-   internal class DamageIndicators
+    internal class DamageIndicators
     {
 
 
@@ -131,58 +131,58 @@ namespace RivenReborn
                 return Riven.myHero.CalculateDamageOnUnit(target, DamageType.Physical, (float)(rawdmg * (1 + pluspercent)));
             }
             return 0;
-        } 
+        }
 
-     public static double totaldame(Obj_AI_Base target)
-     {
-    if (target != null)
-    {
-        float dmg = 0;
-        float passivenhan;
-        if (Riven.myHero.Level >= 18)
+        public static double totaldame(Obj_AI_Base target)
         {
-            passivenhan = 0.5f;
+            if (target != null)
+            {
+                float dmg = 0;
+                float passivenhan;
+                if (Riven.myHero.Level >= 18)
+                {
+                    passivenhan = 0.5f;
+                }
+                else if (Riven.myHero.Level >= 15)
+                {
+                    passivenhan = 0.45f;
+                }
+                else if (Riven.myHero.Level >= 12)
+                {
+                    passivenhan = 0.4f;
+                }
+                else if (Riven.myHero.Level >= 9)
+                {
+                    passivenhan = 0.35f;
+                }
+                else if (Riven.myHero.Level >= 6)
+                {
+                    passivenhan = 0.3f;
+                }
+                else if (Riven.myHero.Level >= 3)
+                {
+                    passivenhan = 0.25f;
+                }
+                else
+                {
+                    passivenhan = 0.2f;
+                }
+                if (Riven.W.IsReady()) dmg = dmg + Riven.myHero.GetSpellDamage(target, SpellSlot.W);
+                if (Riven.Q.IsReady())
+                {
+                    var qnhan = 4 - Riven.QNum;
+                    dmg = dmg + ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) * qnhan + Riven.myHero.GetAutoAttackDamage(target) * qnhan * (1 + passivenhan);
+                }
+                dmg = dmg + Riven.myHero.GetAutoAttackDamage(target) * (1 + passivenhan);
+                if (Riven.R1.IsReady())
+                {
+                    var rdmg = Rdame(target, target.Health - dmg * 1.2f);
+                    return dmg * 1.2 + rdmg;
+                }
+                return dmg;
+            }
+            return 0;
         }
-        else if (Riven.myHero.Level >= 15)
-        {
-            passivenhan = 0.45f;
-        }
-        else if (Riven.myHero.Level >= 12)
-        {
-            passivenhan = 0.4f;
-        }
-        else if (Riven.myHero.Level >= 9)
-        {
-            passivenhan = 0.35f;
-        }
-        else if (Riven.myHero.Level >= 6)
-        {
-            passivenhan = 0.3f;
-        }
-        else if (Riven.myHero.Level >= 3)
-        {
-            passivenhan = 0.25f;
-        }
-        else
-        {
-            passivenhan = 0.2f;
-        }
-        if (Riven.W.IsReady()) dmg = dmg + Riven.myHero.GetSpellDamage(target, SpellSlot.W);
-        if (Riven.Q.IsReady())
-        {
-            var qnhan = 4 - Riven.QNum;
-            dmg = dmg + ObjectManager.Player.GetSpellDamage(target, SpellSlot.Q) * qnhan + Riven.myHero.GetAutoAttackDamage(target) * qnhan * (1 + passivenhan);
-        }
-        dmg = dmg + Riven.myHero.GetAutoAttackDamage(target) * (1 + passivenhan);
-        if (Riven.R1.IsReady())
-        {
-            var rdmg = Rdame(target, target.Health - dmg * 1.2f);
-            return dmg * 1.2 + rdmg;
-        }
-        return dmg;
-    }
-    return 0;
-}
         private static double RDamage(Obj_AI_Base target)
         {
 

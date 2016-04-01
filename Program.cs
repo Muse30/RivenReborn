@@ -122,14 +122,14 @@
 
             Menu = MainMenu.AddMenu("Riven Reborn", "RivenReborn");
             Menu.AddGroupLabel("Riven Reborn Revamped Rewritten ReKappa!");
-    
+
 
             ComboMenu = Menu.AddSubMenu("Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.AddLabel("Super Fast Q+AA combo");
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
             ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
-            ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable")); 
+            ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
             ComboMenu.AddSeparator();
             ComboMenu.Add("ComboE", new CheckBox("use E in Combo"));
             ComboMenu.AddLabel("Q Delays : ");
@@ -165,7 +165,7 @@
             LaneMenu.AddSeparator();
 
 
-            JungleMenu  = Menu.AddSubMenu("Jungle");
+            JungleMenu = Menu.AddSubMenu("Jungle");
             JungleMenu.AddGroupLabel("Jungle Clear");
             JungleMenu.Add("jungleQ", new CheckBox("Use Q"));
             JungleMenu.Add("jungleW", new CheckBox("Use W"));
@@ -184,7 +184,7 @@
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
             MiscMenu.Add("Winterrupt", new CheckBox("W interrupt"));
             MiscMenu.Add("gapcloser", new CheckBox("Stun on enemy gapcloser"));
-       
+
 
             MiscMenu.AddSeparator();
 
@@ -622,7 +622,7 @@
         private static void OnTick(EventArgs args)
         {
 
-           if (lastQ + 3650 < Core.GameTickCount)
+            if (lastQ + 3650 < Core.GameTickCount)
 
 
             Killsteal();
@@ -645,12 +645,12 @@
             }
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
-           
-        
+
+
         }
 
         private static void Combo()
-        {        
+        {
 
             if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
             {
@@ -702,10 +702,10 @@
 
                         E.Cast(t1.ServerPosition);
                 }
-              
+
             }
 
-          
+
 
             if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue)
             {
@@ -734,42 +734,42 @@
 
                             if (ComboBox(ComboMenu, "UseRType") == 0)
                             {
-                                   if (DamageIndicators.Rdame(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
-                                    {
-                                        CastR2 = true;
-                                    }
-                                    else
-                                    {
-                                        CastR2 = false;
+                                if (DamageIndicators.Rdame(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
+                                {
+                                    CastR2 = true;
+                                }
+                                else
+                                {
+                                    CastR2 = false;
                                 }
                             }
-                                    else if (ComboBox(ComboMenu, "UseRType") == 1)
+                            else if (ComboBox(ComboMenu, "UseRType") == 1)
                             {
-                                   var prediction = R2.GetPrediction(t);
-                                    if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdame(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
-                                    {
-                                        R2.Cast(prediction.CastPosition);
-                                    }
-                                    else
-                                    {
-                                        CastR2 = false;
+                                var prediction = R2.GetPrediction(t);
+                                if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdame(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
+                                {
+                                    R2.Cast(prediction.CastPosition);
+                                }
+                                else
+                                {
+                                    CastR2 = false;
                                 }
                             }
 
-                                   else if (ComboBox(ComboMenu, "UseRType") == 2)
-                             {
+                            else if (ComboBox(ComboMenu, "UseRType") == 2)
+                            {
                                 if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
-                                    {
-                                        CastR2 = true;
-                                    }
-                                    else
-                                    {
-                                        CastR2 = false;
+                                {
+                                    CastR2 = true;
+                                }
+                                else
+                                {
+                                    CastR2 = false;
                                 }
                             }
                             else if (ComboBox(ComboMenu, "UseRType") == 3)
-                                {
-                                    CastR2 = false;
+                            {
+                                CastR2 = false;
                             }
                         }
 
@@ -873,7 +873,7 @@
 
                     if (target.IsValidTarget(E.Range))
                     {
-                        if (R2.IsReady() && forceR)
+                        if (R2.IsReady() && forceR2)
                         {
                             var prediction = R2.GetPrediction(target);
                             R2.Cast(target);
@@ -929,27 +929,73 @@
         }
         private static void Killsteal()
         {
-            if (MiscMenu["KillStealW"].Cast<CheckBox>().CurrentValue && W.IsReady())
+            foreach (var e in EntityManager.Heroes.Enemies.Where(e => !e.IsZombie && !e.HasBuff("KindredrNoDeathBuff") && !e.HasBuff("Undying Rage") && !e.HasBuff("JudicatorIntervention") && e.IsValidTarget()))
             {
-                var targets = EntityManager.Heroes.Enemies.Where(x => x.IsValidTarget(R2.Range) && !x.IsZombie);
-                foreach (var target in targets)
+                if (Q.IsReady() && MiscMenu["KillStealQ"].Cast<CheckBox>().CurrentValue)
                 {
-                    if (target.Health < myHero.GetSpellDamage(target, SpellSlot.W) && InWRange(target))
-                        W.Cast();
+                    if (myHero.HasBuff("RivenFengShuiEngine"))
+                    {
+                        if (e.Distance(myHero.ServerPosition) < myHero.AttackRange + myHero.BoundingRadius + 50 && myHero.GetSpellDamage(e, SpellSlot.Q) > e.Health + e.HPRegenRate)
+                            Q.Cast(e.Position);
+                    }
+                    else if (!myHero.HasBuff("RivenFengShuiEngine"))
+                    {
+                        if (e.Distance(myHero.ServerPosition) < myHero.AttackRange + myHero.BoundingRadius && myHero.GetSpellDamage(e, SpellSlot.Q) > e.Health + e.HPRegenRate)
+                            Q.Cast(e.Position);
+                    }
                 }
-            }
-            if (MiscMenu["KillStealR"].Cast<CheckBox>().CurrentValue && R2.IsReady() && R2.Name == IsSecondR)
-            {
-                var targets = EntityManager.Heroes.Enemies.Where(x => x.IsValidTarget(R2.Range) && !x.IsZombie);
-                foreach (var target in targets)
+
+                if (MiscMenu["KillStealW"].Cast<CheckBox>().CurrentValue && W.IsReady())
                 {
-                    if (target.Health < DamageIndicators.Rdame(target, target.Health) &&
-                        (!target.HasBuff("kindrednodeathbuff") && !target.HasBuff("Undying Rage") &&
-                         !target.HasBuff("JudicatorIntervention")))
-                        R2.Cast(target.Position);
+                    var targets = EntityManager.Heroes.Enemies.Where(x => x.IsValidTarget(R2.Range) && !x.IsZombie);
+                    foreach (var target in targets)
+                    {
+                        if (target.Health < myHero.GetSpellDamage(target, SpellSlot.W) && InWRange(target))
+                            W.Cast();
+                    }
+                }
+                if (R1.IsReady() && MiscMenu["KillStealR"].Cast<CheckBox>().CurrentValue)
+                {
+                    if (myHero.HasBuff("RivenWindScarReady"))
+                    {
+                        if (E.IsReady() && MiscMenu["KillStealE"].Cast<CheckBox>().CurrentValue)
+                        {
+                            if (myHero.ServerPosition.CountEnemiesInRange(R2.Range + E.Range) < 3 && myHero.HealthPercent > 50)
+                            {
+                                if (DamageIndicators.Rdame(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range + E.Range - 100))
+                                {
+                                    R1.Cast();
+                                    E.Cast(e.Position);
+                                    Core.DelayAction(() => { R2.Cast(e); }, 350);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (DamageIndicators.Rdame(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range - 50))
+                            {
+                                R1.Cast();
+                                R2.Cast(e);
+                            }
+                        }
+                    }
                 }
             }
         }
+
+        private static void ForceR()
+        {
+            forceR = (R1.IsReady() && R1.Name == IsFirstR);
+            //Chat.Print(forceR);
+            Core.DelayAction(() => forceR = false, 700);
+        }
+
+        private static void ForceR2()
+        {
+            forceR2 = R2.IsReady() && R2.Name == IsSecondR;
+            Core.DelayAction(() => forceR2 = false, 500);
+        }
+
 
         private static void JungleClear()
         {
