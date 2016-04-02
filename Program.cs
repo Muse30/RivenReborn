@@ -613,7 +613,7 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum >= 1)
             {
                 var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
@@ -625,7 +625,7 @@
                     {
                         UseItems(t);
                         W.Cast();
-
+                        DanceIfNotAborted();
                     }
 
                     UseItems2(t);
@@ -709,7 +709,7 @@
                                 var prediction = R2.GetPrediction(t);
                                 if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdmg(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
                                 {
-                                    R2.Cast(t);
+                                    Player.CastSpell(SpellSlot.R);
                                 }
                                 else
                                 {
@@ -736,7 +736,7 @@
 
                         if (CastR2)
                         {
-                            R2.Cast(t);
+                            Player.CastSpell(SpellSlot.R);
                         }
                     }
                 }
@@ -778,6 +778,7 @@
                     if (t.IsValidTarget(W.Range) && QStack == 1)
                     {
                         W.Cast();
+
                     }
                 }
 
@@ -817,8 +818,9 @@
                 if (Flash.IsReady() && (myHero.Distance(target.Position) <= 720))
                 {
                     Flash.Cast(target.ServerPosition);
-
                 }
+
+                UseItems(target);
 
                 if (target.IsValidTarget(W.Range))
                 {
@@ -828,14 +830,12 @@
                         W.Cast();
                     }
 
-                var ts = TargetSelector.GetTarget(900, DamageType.Physical);
+                    var ts = TargetSelector.GetTarget(900, DamageType.Physical);
                     {
                         if (ts.IsValidTarget(R2.Range) && ts.Distance(myHero.ServerPosition) < 600)
                         {
-                            CastR2 = true;
+                            Player.CastSpell(SpellSlot.R);
                         }
-
-                        UseItems(target);
 
                     }
 
@@ -859,23 +859,23 @@
                                 W.Cast();
                 }
 
-                    if (LaneMenu["LaneE"].Cast<CheckBox>().CurrentValue)
+                if (LaneMenu["LaneE"].Cast<CheckBox>().CurrentValue)
                 {
-                        var Mob = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, myHero.ServerPosition, E.Range).ToList();
+                    var Mob = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, myHero.ServerPosition, E.Range).ToList();
 
                     if (Mob.FirstOrDefault().IsValidTarget(E.Range))
+                    {
+                        if (Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun) && !W.IsReady())
                         {
-                            if (Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun) && !W.IsReady())
-                            {
-                                E.Cast(Game.CursorPos);
-                            }
-                            else if (!Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun))
-                            {
-                                E.Cast(Game.CursorPos);
-                            }
+                            E.Cast(Game.CursorPos);
+                        }
+                        else if (!Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun))
+                        {
+                            E.Cast(Game.CursorPos);
                         }
                     }
-        }
+                }
+            }
         }
 
         private static void Flee()
@@ -1044,7 +1044,11 @@
 
 
         public static AIHeroClient Qtarget;
-
+        private static void ForceQ()
+        {
+            if (Q.IsReady())
+                Player.CastSpell(SpellSlot.Q, Game.CursorPos);
+        }
 
         private static double RDamage(Obj_AI_Base target)
         {
@@ -1101,9 +1105,9 @@
                                  ((DamageIndicators.getComboDamage(aiHeroClient) / aiHeroClient.MaxHealth) > 1
                                      ? 1
                                      : (DamageIndicators.getComboDamage(aiHeroClient) / aiHeroClient.MaxHealth));
-                Line.DrawLine(System.Drawing.Color.Lime, 9f, new Vector2(pos.X, pos.Y),
+                Line.DrawLine(System.Drawing.Color.DarkRed, 9f, new Vector2(pos.X, pos.Y),
                     new Vector2(pos.X + (damage > fullbar ? fullbar : damage), pos.Y));
-                Line.DrawLine(System.Drawing.Color.White, 9, new Vector2(pos.X + (damage > fullbar ? fullbar : damage) - 2, pos.Y), new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 2, pos.Y));
+                Line.DrawLine(System.Drawing.Color.Black, 9, new Vector2(pos.X + (damage > fullbar ? fullbar : damage) - 2, pos.Y), new Vector2(pos.X + (damage > fullbar ? fullbar : damage) + 2, pos.Y));
             }
         }
     }
