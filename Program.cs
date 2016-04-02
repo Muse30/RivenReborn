@@ -168,7 +168,11 @@
             FleeMenu = Menu.AddSubMenu("Flee");
             FleeMenu.AddGroupLabel("Flee Settings");
             FleeMenu.AddGroupLabel("Flee");
-            FleeMenu.Add("Flee", new CheckBox("Q/E"));
+            FleeMenu.Add("qflee", new CheckBox("Use Q"));
+            FleeMenu.Add("wflee", new CheckBox("Use W on enemy"));
+            FleeMenu.Add("eflee", new CheckBox("Use E"));
+            FleeMenu.Add("useitemf", new CheckBox("Use Yoummu"));
+
             FleeMenu.AddSeparator();
 
             DrawMenu = Menu.AddSubMenu("Drawings");
@@ -885,9 +889,9 @@
                     hero =>
                         hero.IsValidTarget(WRange) && W.IsReady());
             var x = myHero.Position.Extend(Game.CursorPos, 300);
-            if (W.IsReady() && enemy.Any()) W.Cast();
-            if (Q.IsReady() && !myHero.IsDashing()) Player.CastSpell(SpellSlot.Q, Game.CursorPos);
-            if (E.IsReady() && !myHero.IsDashing()) Player.CastSpell(SpellSlot.E, x.To3D());
+            if (W.IsReady() && FleeMenu["wflee"].Cast<CheckBox>().CurrentValue && enemy.Any()) W.Cast();
+            if (Q.IsReady() && FleeMenu["qflee"].Cast<CheckBox>().CurrentValue && !myHero.IsDashing()) Player.CastSpell(SpellSlot.Q, Game.CursorPos);
+            if (E.IsReady() && FleeMenu["eflee"].Cast<CheckBox>().CurrentValue && !myHero.IsDashing()) Player.CastSpell(SpellSlot.E, x.To3D());
         }
 
         public static uint WRange
@@ -1011,7 +1015,7 @@
         {
             var youmu = ObjectManager.Player.InventoryItems.FirstOrDefault(it => it.Id == ItemId.Youmuus_Ghostblade);
 
-            if (youmu != null && youmu.CanUseItem()) youmu.Cast();
+            if (youmu != null && youmu.CanUseItem() && FleeMenu["useitemf"].Cast<CheckBox>().CurrentValue) youmu.Cast();
         }
 
 
