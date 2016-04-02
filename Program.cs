@@ -701,7 +701,7 @@
                             {
                                 if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    Player.CastSpell(SpellSlot.R);
+                                    R2.Cast(t);
                                 }
                                 else
                                 {
@@ -725,7 +725,7 @@
                             {
                                 if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    Player.CastSpell(SpellSlot.R);
+                                    R2.Cast(t);
                                 }
                                 else
                                 {
@@ -734,13 +734,13 @@
                             }
                             else if (ComboBox(ComboMenu, "UseRType") == 3)
                             {
-                                CastR2 = false;
+                                R2.Cast(t);
                             }
                         }
 
                         if (CastR2)
                         {
-                            Player.CastSpell(SpellSlot.R);
+                            R2.Cast(t);
                         }
                     }
                 }
