@@ -196,7 +196,7 @@
 
             if (slot != SpellSlot.Unknown)
             {
-                Flash = new Spell.Skillshot(slot, 770, SkillShotType.Linear);
+                Flash = new Spell.Skillshot(slot, 680, SkillShotType.Linear);
             }
 
             var ign = Player.Spells.FirstOrDefault(o => o.SData.Name == "SummonerDot");
@@ -819,7 +819,7 @@
                     R1.Cast();
                 }
 
-                if (Flash.IsReady() && (myHero.Distance(target.Position) <= 720))
+                if (Flash.IsReady() && (myHero.Distance(target.Position) <= 680))
                 {
                     Flash.Cast(target.ServerPosition);
                 }
