@@ -505,6 +505,15 @@
                         Q.Cast(t.Position);
                 }
             }
+
+            if (BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue)
+            {
+                if (Q.IsReady())
+                {
+                    if (t is AIHeroClient)
+                        Q.Cast(t.Position);
+                }
+            }
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass))
             {
                 if (Q.IsReady())
@@ -632,7 +641,7 @@
                         DanceIfNotAborted();
                     }
 
-                    UseItems2(t);
+                  
 
                 }
             }
@@ -670,9 +679,11 @@
 
             }
 
+            if (QNum >= 1)
 
+            {
 
-            if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue)
+                if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue)
             {
                 if (R1.IsReady())
                 {
@@ -699,9 +710,10 @@
 
                             if (ComboBox(ComboMenu, "UseRType") == 0)
                             {
+                                var target = TargetSelector.SelectedTarget;
                                 if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    R2.Cast(t);
+                                    R2.Cast(TargetSelector.SelectedTarget);
                                 }
                                 else
                                 {
@@ -746,7 +758,7 @@
                 }
             }
         }
-
+        }
         private static void AutoUseW()
         {
             if (MiscMenu["AutoW"].Cast<Slider>().CurrentValue > 0)
@@ -813,6 +825,7 @@
                     UseItems2(target);
                     Player.CastSpell(SpellSlot.E, target.ServerPosition);
                 }
+                UseItems2(target);
 
                 if (R1.IsReady() && BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue && forceR == false)
                 {
@@ -838,14 +851,14 @@
                     {
                         if (ts.IsValidTarget(R2.Range) && ts.Distance(myHero.ServerPosition) < 600)
                         {
-                            Player.CastSpell(SpellSlot.R, ts);
+                            R2.Cast(TargetSelector.SelectedTarget);
                         }
 
                     }
 
                 }
                 var t = TargetSelector.GetTarget(900, DamageType.Physical);
-                Q.Cast(t.Position);
+                ForceSkill();
             }
         }
 
