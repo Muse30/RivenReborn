@@ -183,7 +183,7 @@
             DrawMenu.Add("BER", new CheckBox("Draw Burst Engage Range"));
 
             Q = new Spell.Skillshot(SpellSlot.Q, 260, SkillShotType.Circular, 250, 2200, 100);
-            W = new Spell.Active(SpellSlot.W, 255);
+            W = new Spell.Active(SpellSlot.W, 252);
             E = new Spell.Skillshot(SpellSlot.E, 465, SkillShotType.Linear);
             R1 = new Spell.Active(SpellSlot.R, (uint)myHero.GetAutoAttackRange());
             R2 = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Cone, 250, 1600, 125)
@@ -838,7 +838,7 @@
                     {
                         if (ts.IsValidTarget(R2.Range) && ts.Distance(myHero.ServerPosition) < 600)
                         {
-                            Player.CastSpell(SpellSlot.R);
+                            Player.CastSpell(SpellSlot.R, ts);
                         }
 
                     }
