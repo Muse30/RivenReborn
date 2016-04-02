@@ -701,7 +701,7 @@
                             {
                                 if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    CastR2 = true;
+                                    Player.CastSpell(SpellSlot.R);
                                 }
                                 else
                                 {
@@ -725,7 +725,7 @@
                             {
                                 if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    CastR2 = true;
+                                    Player.CastSpell(SpellSlot.R);
                                 }
                                 else
                                 {
