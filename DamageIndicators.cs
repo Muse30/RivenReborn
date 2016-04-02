@@ -121,13 +121,13 @@ namespace RivenReborn
 
 
 
-        public static double Rdame(Obj_AI_Base target, double health)
+        public static double Rdmg(Obj_AI_Base target, double health)
         {
             if (target != null)
             {
                 var missinghealth = (target.MaxHealth - health) / target.MaxHealth > 0.75 ? 0.75 : (target.MaxHealth - health) / target.MaxHealth;
                 var pluspercent = missinghealth * (8 / 3);
-                var rawdmg = new double[] { 80, 120, 160 }[Riven.R2.Level - 1] + 0.6 * Riven.myHero.FlatPhysicalDamageMod;
+                var rawdmg = new double[] { 80, 120, 160 }[Riven.R1.Level - 1] + 0.6 * Riven.myHero.FlatPhysicalDamageMod;
                 return Riven.myHero.CalculateDamageOnUnit(target, DamageType.Physical, (float)(rawdmg * (1 + pluspercent)));
             }
             return 0;
@@ -176,7 +176,7 @@ namespace RivenReborn
                 dmg = dmg + Riven.myHero.GetAutoAttackDamage(target) * (1 + passivenhan);
                 if (Riven.R1.IsReady())
                 {
-                    var rdmg = Rdame(target, target.Health - dmg * 1.2f);
+                    var rdmg = Rdmg(target, target.Health - dmg * 1.2f);
                     return dmg * 1.2 + rdmg;
                 }
                 return dmg;

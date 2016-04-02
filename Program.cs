@@ -61,7 +61,6 @@
 
         private static int QStack = 0;
 
-        public static bool forceQ2 = false;
 
         private static bool forceQ;
 
@@ -105,7 +104,7 @@
 
             ComboMenu = Menu.AddSubMenu("Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
-            ComboMenu.AddLabel("Super Fast Q+AA combo");
+            ComboMenu.AddLabel("Sick Burst combo try it !");
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
             ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
             ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
@@ -164,10 +163,7 @@
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
             MiscMenu.Add("Winterrupt", new CheckBox("W interrupt"));
             MiscMenu.Add("gapcloser", new CheckBox("Stun on enemy gapcloser"));
-
-
             MiscMenu.AddSeparator();
-
 
             FleeMenu = Menu.AddSubMenu("Flee");
             FleeMenu.AddGroupLabel("Flee Settings");
@@ -184,7 +180,7 @@
 
             Q = new Spell.Skillshot(SpellSlot.Q, 260, SkillShotType.Circular, 250, 2200, 100);
             W = new Spell.Active(SpellSlot.W, 255);
-            E = new Spell.Skillshot(SpellSlot.E, 460, SkillShotType.Linear);
+            E = new Spell.Skillshot(SpellSlot.E, 465, SkillShotType.Linear);
             R1 = new Spell.Active(SpellSlot.R, (uint)myHero.GetAutoAttackRange());
             R2 = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Cone, 250, 1600, 125)
             {
@@ -437,8 +433,6 @@
                     if (lastQ > Core.GameTickCount - 500)
                     {
 
-                        //Orbwalker.ResetAutoAttack();
-                        //Utils.Debug("reset");
                     }
 
                     break;
@@ -449,7 +443,6 @@
                 lastQDelay = delay;
                 Orbwalker.ResetAutoAttack();
                 Core.DelayAction(DanceIfNotAborted, delay - Game.Ping);
-                //Utils.Debug("reset"); 
             }
 
 
@@ -518,19 +511,7 @@
                 }
             }
 
-            /*
-            if (Orbwalker.ActiveMode == Orbwalking.OrbwalkingMode.QuickHarass)
-            {
-                if (Q.IsReady() && QStack != 2)
-                {
-                    if (HarassQ)
-                    {
-                        if (t is Obj_AI_Hero)
-                            Q.Cast(t.Position);
-                    }
-                }
-            }
-            */
+
 
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) || Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
             {
@@ -605,7 +586,7 @@
             if (lastQ + 3650 < Core.GameTickCount)
 
 
-            Killsteal();
+                Killsteal();
             AutoUseW();
             ;
             if (BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue) Burst();
@@ -714,7 +695,7 @@
 
                             if (ComboBox(ComboMenu, "UseRType") == 0)
                             {
-                                if (DamageIndicators.Rdame(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
+                                if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
                                     CastR2 = true;
                                 }
@@ -726,9 +707,9 @@
                             else if (ComboBox(ComboMenu, "UseRType") == 1)
                             {
                                 var prediction = R2.GetPrediction(t);
-                                if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdame(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
+                                if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdmg(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
                                 {
-                                    R2.Cast(prediction.CastPosition);
+                                    R2.Cast(t);
                                 }
                                 else
                                 {
@@ -833,8 +814,6 @@
                     R1.Cast();
                 }
 
-                Player.IssueOrder(GameObjectOrder.AttackTo, target);
-
                 if (Flash.IsReady() && (myHero.Distance(target.Position) <= 720))
                 {
                     Flash.Cast(target.ServerPosition);
@@ -849,28 +828,20 @@
                         W.Cast();
                     }
 
-                    UseItems(target);
-
-                    if (target.IsValidTarget(E.Range))
+                var ts = TargetSelector.GetTarget(900, DamageType.Physical);
                     {
-                        if (R2.IsReady() && forceR2)
+                        if (ts.IsValidTarget(R2.Range) && ts.Distance(myHero.ServerPosition) < 600)
                         {
-                            var enemy = EntityManager.Heroes.Enemies.FirstOrDefault(h => (h.Distance(Player.Instance) < R2.Range - 50) && RDamage(h) > h.Health && h.IsValidTarget());
-                            if (enemy != null)
-                            {
-                                forceR2 = true;
-                                R2Target = enemy;
-                                Core.DelayAction(() => forceR2 = false, 750);
-                            }
+                            CastR2 = true;
                         }
-                        if (Q.IsReady())
-                        {
-                            Q.Cast(target.ServerPosition);
-                        }
-                    }
-                }
 
-                ForceQ(target);
+                        UseItems(target);
+
+                    }
+
+                }
+                var t = TargetSelector.GetTarget(900, DamageType.Physical);
+                Q.Cast(t.Position);
             }
         }
 
@@ -887,9 +858,25 @@
                             if (WMinions.Count >= 3)
                                 W.Cast();
                 }
-            }
-        }
 
+                    if (LaneMenu["LaneE"].Cast<CheckBox>().CurrentValue)
+                {
+                        var Mob = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy, myHero.ServerPosition, E.Range).ToList();
+
+                    if (Mob.FirstOrDefault().IsValidTarget(E.Range))
+                        {
+                            if (Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun) && !W.IsReady())
+                            {
+                                E.Cast(Game.CursorPos);
+                            }
+                            else if (!Mob.FirstOrDefault().HasBuffOfType(BuffType.Stun))
+                            {
+                                E.Cast(Game.CursorPos);
+                            }
+                        }
+                    }
+        }
+        }
 
         private static void Flee()
         {
@@ -947,7 +934,7 @@
                         {
                             if (myHero.ServerPosition.CountEnemiesInRange(R2.Range + E.Range) < 3 && myHero.HealthPercent > 50)
                             {
-                                if (DamageIndicators.Rdame(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range + E.Range - 100))
+                                if (DamageIndicators.Rdmg(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range + E.Range - 100))
                                 {
                                     R1.Cast();
                                     E.Cast(e.Position);
@@ -957,7 +944,7 @@
                         }
                         else
                         {
-                            if (DamageIndicators.Rdame(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range - 50))
+                            if (DamageIndicators.Rdmg(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range - 50))
                             {
                                 R1.Cast();
                                 R2.Cast(e);
@@ -971,7 +958,6 @@
         private static void ForceR()
         {
             forceR = (R1.IsReady() && R1.Name == IsFirstR);
-            //Chat.Print(forceR);
             Core.DelayAction(() => forceR = false, 700);
         }
 
@@ -1039,7 +1025,6 @@
             if (QTarget == null || !QTarget.IsValidTarget()) return;
             if (forceR && R1.Name == IsFirstR)
             {
-                //Chat.Print("trying to use R");
                 Player.CastSpell(SpellSlot.R);
                 return;
             }
@@ -1057,31 +1042,8 @@
             }
         }
 
-        public static void ForceQ(AIHeroClient target)
-        {
-            if (!target.IsValidTarget()) return;
-
-            if (Player.Instance.Distance(target) < 270)
-            {
-                forceQ2 = true;
-            }
-            else
-            {
-                ForceQ3(target);
-            }
-        }
 
         public static AIHeroClient Qtarget;
-        public static void ForceQ3(AIHeroClient target)
-        {
-            if (!target.IsValidTarget()) return;
-
-            Qtarget = target;
-            if (Player.Instance.Distance(target) > 270)
-            {
-                forceQ2 = true;
-            }
-        }
 
 
         private static double RDamage(Obj_AI_Base target)
@@ -1092,7 +1054,7 @@
                 float missinghealth = (target.MaxHealth - target.Health) / target.MaxHealth > 0.75f
                     ? 0.75f
                     : (target.MaxHealth - target.Health) / target.MaxHealth;
-                float pluspercent = missinghealth * (2.666667F); // 8/3
+                float pluspercent = missinghealth * (2.666667F);
                 float rawdmg = new float[] { 80, 120, 160 }[R2.Level - 1] + 0.6f * myHero.FlatPhysicalDamageMod;
                 return Player.Instance.CalculateDamageOnUnit(target, DamageType.Physical, rawdmg * (1 + pluspercent));
             }
@@ -1101,35 +1063,17 @@
 
         private static void Drawing_OnDraw(EventArgs args)
         {
-            //temp
+
             if (myHero.IsDead)
                 return;
             var heropos = Drawing.WorldToScreen(ObjectManager.Player.Position);
-
-
-            /*if (QStack != 1 && DrawTimer1)
-            {
-                Timer.text = ("Q Expiry =>  " + ((double) (LastQ - Environment.TickCount + 3800)/1000).ToString("0.0") +
-                              "S");
-                Timer.OnEndScene();
-            }
-            if (Player.HasBuff("RivenFengShuiEngine") && DrawTimer2)
-            {
-                Timer2.text = ("R Expiry =>  " +
-                               (((double) LastR - Environment.TickCount + 15000)/1000).ToString("0.0") + "S");
-                Timer2.OnEndScene();
-            }*/
             var green = Color.LimeGreen;
             var red = Color.IndianRed;
             if (DrawMenu["ER"].Cast<CheckBox>().CurrentValue)
                 Circle.Draw(E.IsReady() ? green : red, 250 + myHero.AttackRange + 70, ObjectManager.Player.Position);
             if (DrawMenu["BER"].Cast<CheckBox>().CurrentValue && Flash != null && Flash.Slot != SpellSlot.Unknown)
                 Circle.Draw(R1.IsReady() ? green : red, 800, ObjectManager.Player.Position);
-            //     if (DrawFH)
-            //   Circle.Draw(E.IsReady() && Q.IsReady() ? green : red, 450 + myHero.AttackRange + 70,
-            //      ObjectManager.Player.Position);
-            //      if (DrawHS)
-            //         Circle.Draw(Q.IsReady() && W.IsReady() ? green : red, 400, ObjectManager.Player.Position);
+
             if (DrawMenu["DrawAlwaysR"].Cast<CheckBox>().CurrentValue)
             {
                 Drawing.DrawText(heropos.X - 40, heropos.Y + 20, System.Drawing.Color.FloralWhite, "ForceR");
@@ -1138,10 +1082,6 @@
                     ComboMenu["RForce"].Cast<KeyBind>().CurrentValue ? "On" : "Off");
             }
 
-            //Drawing.DrawText(heropos.X - 40, heropos.Y + 43, System.Drawing.Color.DodgerBlue, "Can AA:");
-            //Drawing.DrawText(heropos.X + 50, heropos.Y + 43,
-            //        Orbwalker.CanAutoAttack ? System.Drawing.Color.LimeGreen : System.Drawing.Color.Red,
-            //        Orbwalker.CanAutoAttack ? "true" : "false");
         }
         private static readonly float _barLength = 104;
         private static readonly float _xOffset = 2;
