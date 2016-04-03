@@ -116,12 +116,15 @@
             ComboMenu.Add("q2delay", new Slider("Q2 animation delay in ms default 293", 291, 0, 500));
             ComboMenu.Add("q3delay", new Slider("Q3 animation delay in ms default 393", 393, 0, 500));
             ComboMenu.Add("wdelay", new Slider("W animation delay in ms default 170", 170, 0, 500));
+            ComboMenu.AddSeparator();
+            ComboMenu.AddSeparator();
             ComboMenu.Add("manualcancel", new CheckBox("Cancel animation from manual Qs"));
+            ComboMenu.AddSeparator();
             ComboMenu.Add("UseItems", new CheckBox("Use Items"));
 
 
             BurstMenu = Menu.AddSubMenu("Burst");
-            BurstMenu.AddGroupLabel("Burst Settings");
+            BurstMenu.AddGroupLabel("Burst Settingsz");
             BurstMenu.Add("burstcombo", new KeyBind("Activate Burst", false, KeyBind.BindTypes.HoldActive, 'T'));
             BurstMenu.AddSeparator();
             BurstMenu.AddLabel("Please Make sure you have Force R enable or it will not use R in burst (will fix)");
@@ -182,14 +185,13 @@
             DrawMenu.Add("ER", new CheckBox("Draw Combo Engage Range"));
             DrawMenu.Add("BER", new CheckBox("Draw Burst Engage Range"));
 
-            Q = new Spell.Skillshot(SpellSlot.Q, 260, SkillShotType.Circular, 250, 2200, 100);
+            Q = new Spell.Skillshot(SpellSlot.Q, 220, SkillShotType.Circular, 250, 2200, 100);
             W = new Spell.Active(SpellSlot.W, 252);
             E = new Spell.Skillshot(SpellSlot.E, 465, SkillShotType.Linear);
             R1 = new Spell.Active(SpellSlot.R, (uint)myHero.GetAutoAttackRange());
             R2 = new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Cone, 250, 1600, 125)
             {
-                MinimumHitChance = HitChance.High,
-                AllowedCollisionCount = -1
+                AllowedCollisionCount = int.MaxValue
             };
 
             var slot = Player.Instance.GetSpellSlotFromName("summonerflash");
@@ -437,6 +439,8 @@
                     if (lastQ > Core.GameTickCount - 500)
                     {
 
+                        //Orbwalker.ResetAutoAttack();
+                        //Utils.Debug("reset");
                     }
 
                     break;
@@ -481,7 +485,6 @@
 
             W.Cast();
         }
-
 
         private static int lastAA;
         private static AIHeroClient ComboTarget;
@@ -563,6 +566,7 @@
             }
         }
 
+
         internal static void UseItems(Obj_AI_Base target)
         {
             var RivenServerPosition = myHero.ServerPosition.To2D();
@@ -626,7 +630,7 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum >= 1)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
             {
                 var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
@@ -638,7 +642,6 @@
                     {
                         UseItems(t);
                         W.Cast();
-                        DanceIfNotAborted();
                     }
 
                   
@@ -660,11 +663,11 @@
 
                 if (t12 != null)
                 {
-                    UseItems2(t12);
+                    
                     if (myHero.Distance(t12) > myHero.GetAutoAttackRange() + 20)
                     {
-
                         E.Cast(t12.ServerPosition);
+                        UseItems2(t12);
                     }
 
                 }
@@ -678,8 +681,6 @@
                 }
 
             }
-
-            if (QNum >= 1)
 
             {
 
@@ -705,7 +706,7 @@
                         {
                             return;
                         }
-                        if (t.ServerPosition.Distance(myHero.ServerPosition) < 850)
+
                         {
 
                             if (ComboBox(ComboMenu, "UseRType") == 0)
@@ -713,8 +714,8 @@
                                 var target = TargetSelector.SelectedTarget;
                                 if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    R2.Cast(TargetSelector.SelectedTarget);
-                                }
+                                        R2.Cast(t.ServerPosition);
+                                    }
                                 else
                                 {
                                     CastR2 = false;
@@ -725,8 +726,8 @@
                                 var prediction = R2.GetPrediction(t);
                                 if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdmg(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
                                 {
-                                    Player.CastSpell(SpellSlot.R);
-                                }
+                                        R2.Cast(t.ServerPosition);
+                                    }
                                 else
                                 {
                                     CastR2 = false;
@@ -737,8 +738,8 @@
                             {
                                 if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
                                 {
-                                    R2.Cast(t);
-                                }
+                                        R2.Cast(t.ServerPosition);
+                                    }
                                 else
                                 {
                                     CastR2 = false;
@@ -746,8 +747,8 @@
                             }
                             else if (ComboBox(ComboMenu, "UseRType") == 3)
                             {
-                                R2.Cast(t);
-                            }
+                                    CastR2 = false;
+                                }
                         }
 
                         if (CastR2)
@@ -817,7 +818,8 @@
             var target = TargetSelector.SelectedTarget;
             Orbwalker.ForcedTarget = target;
             Orbwalker.OrbwalkTo(target.ServerPosition);
-            if (target != null && target.IsValidTarget(1000))
+            if (target == null || target.IsZombie || target.IsInvulnerable) return;
+            if (target.IsValidTarget(800))
 
             {
                 if (E.IsReady())
@@ -847,18 +849,13 @@
                         W.Cast();
                     }
 
-                    var ts = TargetSelector.GetTarget(900, DamageType.Physical);
-                    {
-                        if (ts.IsValidTarget(R2.Range) && ts.Distance(myHero.ServerPosition) < 600)
-                        {
-                            R2.Cast(TargetSelector.SelectedTarget);
-                        }
+                  if (R2.IsReady())
 
+                        {
+                        R2.Cast(target.ServerPosition);
                     }
 
                 }
-                var t = TargetSelector.GetTarget(900, DamageType.Physical);
-                ForceSkill();
             }
         }
 
