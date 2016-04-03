@@ -660,18 +660,6 @@
                     return;
                 }
 
-
-                var t12 = t.OrderByDescending(e => TargetSelector.GetPriority(e)).FirstOrDefault();
-
-                if (t12 != null)
-                {
-                    
-                    if (myHero.Distance(t12) > myHero.GetAutoAttackRange() + 20)
-                    {
-                        E.Cast(t12.ServerPosition);
-                    }
-
-                }
                 if (ComboMenu["ComboE"].Cast<CheckBox>().CurrentValue)
                 {
                     var t1 = t.OrderByDescending(e => TargetSelector.GetPriority(e)).FirstOrDefault();
