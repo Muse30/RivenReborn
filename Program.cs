@@ -641,6 +641,8 @@
 
                     {
                         UseItems(t);
+                        UseItems2(t);
+
                         W.Cast();
                     }
 
@@ -667,7 +669,6 @@
                     if (myHero.Distance(t12) > myHero.GetAutoAttackRange() + 20)
                     {
                         E.Cast(t12.ServerPosition);
-                        UseItems2(t12);
                     }
 
                 }
@@ -675,8 +676,7 @@
                 {
                     var t1 = t.OrderByDescending(e => TargetSelector.GetPriority(e)).FirstOrDefault();
 
-                    if (t1 != null)
-
+                        if (t1 != null)
                         E.Cast(t1.ServerPosition);
                 }
 
@@ -736,7 +736,7 @@
 
                             else if (ComboBox(ComboMenu, "UseRType") == 2)
                             {
-                                if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
+                                if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 200)
                                 {
                                         R2.Cast(t.ServerPosition);
                                     }
