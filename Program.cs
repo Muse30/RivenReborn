@@ -160,7 +160,7 @@
             MiscMenu.Add("KillStealQ", new CheckBox("Use Q KS"));
             MiscMenu.Add("KillStealW", new CheckBox("Use W KS"));
             MiscMenu.Add("KillStealE", new CheckBox("Use E KS"));
-            MiscMenu.Add("KillStealR", new CheckBox("Use R KS"));
+            ComboMenu.AddLabel("Killsteal with R is disable (was causing random r2 behind enemy cast)");
             MiscMenu.Add("SaveW", new CheckBox("Dont W if target killable with AA", false));
             MiscMenu.Add("AutoW", new Slider("Auto W When X Enemy", 5, 0, 5));
             MiscMenu.Add("AutoShield", new CheckBox("Auto E")); ;
@@ -646,7 +646,7 @@
                         W.Cast();
                     }
 
-                  
+
 
                 }
             }
@@ -664,7 +664,7 @@
                 {
                     var t1 = t.OrderByDescending(e => TargetSelector.GetPriority(e)).FirstOrDefault();
 
-                        if (t1 != null)
+                    if (t1 != null)
                         E.Cast(t1.ServerPosition);
                 }
 
@@ -673,80 +673,80 @@
             {
 
                 if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue)
-            {
-                if (R1.IsReady())
                 {
-                    if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue && !myHero.HasBuff("RivenFengShuiEngine"))
+                    if (R1.IsReady())
                     {
-                        var t = TargetSelector.GetTarget(700, DamageType.Physical);
-                        if (t == null)
+                        if (ComboMenu["RForce"].Cast<KeyBind>().CurrentValue && !myHero.HasBuff("RivenFengShuiEngine"))
                         {
-                            return;
-                        }
-                        if (t.Distance(myHero.ServerPosition) < E.Range + myHero.AttackRange && myHero.CountEnemiesInRange(500) >= 1)
-                            R1.Cast();
-                    }
-
-                    if (myHero.HasBuff("RivenFengShuiEngine"))
-                    {
-                        var t = TargetSelector.GetTarget(900, DamageType.Physical);
-                        if (t == null)
-                        {
-                            return;
-                        }
-
-                        {
-
-                            if (ComboBox(ComboMenu, "UseRType") == 0)
+                            var t = TargetSelector.GetTarget(700, DamageType.Physical);
+                            if (t == null)
                             {
-                                var target = TargetSelector.SelectedTarget;
-                                if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
+                                return;
+                            }
+                            if (t.Distance(myHero.ServerPosition) < E.Range + myHero.AttackRange && myHero.CountEnemiesInRange(500) >= 1)
+                                R1.Cast();
+                        }
+
+                        if (myHero.HasBuff("RivenFengShuiEngine"))
+                        {
+                            var t = TargetSelector.GetTarget(900, DamageType.Physical);
+                            if (t == null)
+                            {
+                                return;
+                            }
+
+                            {
+
+                                if (ComboBox(ComboMenu, "UseRType") == 0)
                                 {
+                                    var target = TargetSelector.SelectedTarget;
+                                    if (DamageIndicators.Rdmg(t, t.Health) > t.Health && t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 600)
+                                    {
                                         R2.Cast(t.ServerPosition);
                                     }
-                                else
+                                    else
+                                    {
+                                        CastR2 = false;
+                                    }
+                                }
+                                else if (ComboBox(ComboMenu, "UseRType") == 1)
+                                {
+                                    var prediction = R2.GetPrediction(t);
+                                    if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdmg(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
+                                    {
+                                        R2.Cast(t.ServerPosition);
+                                    }
+                                    else
+                                    {
+                                        CastR2 = false;
+                                    }
+                                }
+
+                                else if (ComboBox(ComboMenu, "UseRType") == 2)
+                                {
+                                    if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 200)
+                                    {
+                                        R2.Cast(t.ServerPosition);
+                                    }
+                                    else
+                                    {
+                                        CastR2 = false;
+                                    }
+                                }
+                                else if (ComboBox(ComboMenu, "UseRType") == 3)
                                 {
                                     CastR2 = false;
                                 }
                             }
-                            else if (ComboBox(ComboMenu, "UseRType") == 1)
-                            {
-                                var prediction = R2.GetPrediction(t);
-                                if (t.HealthPercent < 50 && t.Health > DamageIndicators.Rdmg(t, t.Health) + Damage.GetAutoAttackDamage(myHero, t) * 2)
-                                {
-                                        R2.Cast(t.ServerPosition);
-                                    }
-                                else
-                                {
-                                    CastR2 = false;
-                                }
-                            }
 
-                            else if (ComboBox(ComboMenu, "UseRType") == 2)
+                            if (CastR2)
                             {
-                                if (t.IsValidTarget(R2.Range) && t.Distance(myHero.ServerPosition) < 200)
-                                {
-                                        R2.Cast(t.ServerPosition);
-                                    }
-                                else
-                                {
-                                    CastR2 = false;
-                                }
+                                R2.Cast(t);
                             }
-                            else if (ComboBox(ComboMenu, "UseRType") == 3)
-                            {
-                                    CastR2 = false;
-                                }
-                        }
-
-                        if (CastR2)
-                        {
-                            R2.Cast(t);
                         }
                     }
                 }
             }
-        }
         }
         private static void AutoUseW()
         {
@@ -837,9 +837,9 @@
                         W.Cast();
                     }
 
-                  if (R2.IsReady())
+                    if (R2.IsReady())
 
-                        {
+                    {
                         R2.Cast(target.ServerPosition);
                     }
 
@@ -927,32 +927,8 @@
                         if (target.Health < myHero.GetSpellDamage(target, SpellSlot.W) && InWRange(target))
                             W.Cast();
                     }
-                }
-                if (R1.IsReady() && MiscMenu["KillStealR"].Cast<CheckBox>().CurrentValue)
-                {
-                    if (myHero.HasBuff("RivenWindScarReady"))
-                    {
-                        if (E.IsReady() && MiscMenu["KillStealE"].Cast<CheckBox>().CurrentValue)
-                        {
-                            if (myHero.ServerPosition.CountEnemiesInRange(R2.Range + E.Range) < 3 && myHero.HealthPercent > 50)
-                            {
-                                if (DamageIndicators.Rdmg(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range + E.Range - 100))
-                                {
-                                    R1.Cast();
-                                    E.Cast(e.Position);
-                                    Core.DelayAction(() => { R2.Cast(e); }, 350);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if (DamageIndicators.Rdmg(e, e.Health) > e.Health + e.HPRegenRate && e.IsValidTarget(R2.Range - 50))
-                            {
-                                R1.Cast();
-                                R2.Cast(e);
-                            }
-                        }
-                    }
+               
+       
                 }
             }
         }
