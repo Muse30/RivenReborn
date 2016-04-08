@@ -630,7 +630,7 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum == 1)
             {
                 var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
@@ -927,8 +927,8 @@
                         if (target.Health < myHero.GetSpellDamage(target, SpellSlot.W) && InWRange(target))
                             W.Cast();
                     }
-               
-       
+
+
                 }
             }
         }
