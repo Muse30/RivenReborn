@@ -641,13 +641,11 @@
 
 
                     {
-                        UseItems(t);
-                        UseItems2(t);
-
                         W.Cast();
                     }
 
-
+                    UseItems(t);
+                    UseItems2(t);
 
                 }
             }
@@ -818,7 +816,15 @@
                 }
                 UseItems2(target);
 
-                if (R1.IsReady() && BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue && forceR == false)
+                if (target.IsValidTarget(W.Range))
+                {
+                    if (W.IsReady())
+
+                    {
+                        W.Cast();
+                    }
+
+                 if (R1.IsReady() && BurstMenu["burstcombo"].Cast<KeyBind>().CurrentValue && forceR == false)
                 {
                     R1.Cast();
                 }
@@ -830,13 +836,6 @@
 
                 UseItems(target);
 
-                if (target.IsValidTarget(W.Range))
-                {
-                    if (W.IsReady())
-
-                    {
-                        W.Cast();
-                    }
 
                     if (R2.IsReady())
 
