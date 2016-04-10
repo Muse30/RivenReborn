@@ -106,6 +106,7 @@
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.AddLabel("Sick Burst combo try it !");
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
+            ComboMenu.AddSeparator();
             ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
             ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
             ComboMenu.AddSeparator();
@@ -825,11 +826,17 @@
                 if (Flash.IsReady() && (myHero.Distance(target.Position) <= 680))
                 {
                     Flash.Cast(target.ServerPosition);
-                    W.Cast(target);
                 }
 
                 UseItems(target);
 
+                if (target.IsValidTarget(W.Range))
+                {
+                    if (W.IsReady())
+
+                    {
+                        W.Cast();
+                    }
 
                     if (R2.IsReady())
 
@@ -839,7 +846,7 @@
 
                 }
             }
-        
+        }
 
         private static void LaneClear()
         {
