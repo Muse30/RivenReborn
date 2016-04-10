@@ -105,6 +105,7 @@
             ComboMenu = Menu.AddSubMenu("Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.AddLabel("Sick Burst combo try it !");
+            ComboMenu.Add("wwhen", new ComboBox("Use W :", 1, "E+Q1+W", "E+W"));
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
             ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
             ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
@@ -630,13 +631,15 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum == 1)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
             {
-                var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
+                if (ComboBox(ComboMenu, "wwhen") == 0)
+                {
+                   var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
                 if (t != null)
                 {
-                    if (W.IsReady() && !Orbwalker.CanAutoAttack)
+                    if (W.IsReady() && QNum == 1 && !Orbwalker.CanAutoAttack)
 
 
                     {
@@ -646,9 +649,17 @@
                         W.Cast();
                     }
 
+                    else if (ComboBox(ComboMenu, "wwhen") == 1 && W.IsReady() && !Orbwalker.CanAutoAttack)
 
+                        {
+                            UseItems(t);
+                            UseItems2(t);
 
-                }
+                            W.Cast();
+                        }
+
+                    }
+
             }
 
             if (E.IsReady())
@@ -745,6 +756,7 @@
                             }
                         }
                     }
+                }
                 }
             }
         }
