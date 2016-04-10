@@ -630,7 +630,7 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum == 1)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
             {
                 var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
