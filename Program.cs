@@ -105,7 +105,6 @@
             ComboMenu = Menu.AddSubMenu("Combo");
             ComboMenu.AddGroupLabel("Combo Settings");
             ComboMenu.AddLabel("Sick Burst combo try it !");
-            ComboMenu.Add("wwhen", new ComboBox("Use W :", 1, "E+Q1+W", "E+W"));
             ComboMenu.Add("ComboW", new CheckBox("use W in Combo"));
             ComboMenu.Add("RForce", new KeyBind("R Force Key", false, KeyBind.BindTypes.PressToggle, 'G'));
             ComboMenu.Add("UseRType", new ComboBox("Use R2 :", 1, "Killable", "Max Damage", "Instant Cast", "Disable"));
@@ -631,15 +630,13 @@
         private static void Combo()
         {
 
-            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue)
+            if (ComboMenu["ComboW"].Cast<CheckBox>().CurrentValue && QNum == 1)
             {
-                if (ComboBox(ComboMenu, "wwhen") == 0)
-                {
-                   var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
+                var t = EntityManager.Heroes.Enemies.Find(x => x.IsValidTarget(W.Range) && !x.HasBuffOfType(BuffType.SpellShield));
 
                 if (t != null)
                 {
-                    if (W.IsReady() && QNum == 1 && !Orbwalker.CanAutoAttack)
+                    if (W.IsReady() && !Orbwalker.CanAutoAttack)
 
 
                     {
@@ -649,17 +646,9 @@
                         W.Cast();
                     }
 
-                    else if (ComboBox(ComboMenu, "wwhen") == 1 && W.IsReady() && !Orbwalker.CanAutoAttack)
 
-                        {
-                            UseItems(t);
-                            UseItems2(t);
 
-                            W.Cast();
-                        }
-
-                    }
-
+                }
             }
 
             if (E.IsReady())
@@ -757,7 +746,6 @@
                         }
                     }
                 }
-                }
             }
         }
         private static void AutoUseW()
@@ -837,17 +825,11 @@
                 if (Flash.IsReady() && (myHero.Distance(target.Position) <= 680))
                 {
                     Flash.Cast(target.ServerPosition);
+                    W.Cast(target);
                 }
 
                 UseItems(target);
 
-                if (target.IsValidTarget(W.Range))
-                {
-                    if (W.IsReady())
-
-                    {
-                        W.Cast();
-                    }
 
                     if (R2.IsReady())
 
@@ -857,7 +839,7 @@
 
                 }
             }
-        }
+        
 
         private static void LaneClear()
         {
